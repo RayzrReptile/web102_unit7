@@ -24,6 +24,17 @@ const EditPost = () => {
     fetchPosts();
     }, [])
 
+    // 'ENTER' button listener
+    var inputs = document.querySelectorAll('input');
+    if (inputs) {
+        for (let input of inputs) {
+            input.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    updatePost();
+                }
+            })
+        }
+    }
 
     const handleChange = (event) => {
         const {name, value} = event.target;
@@ -37,16 +48,12 @@ const EditPost = () => {
     const updatePost = async (event) => {
         event.preventDefault();
 
-        //checkParams();
-
         for (const [key, value] of Object.entries(post)) {
             if (value == "") {
               post[key] = priorPost[0][key];
             }
         }
 
-        console.log(post);
-        debugger;
         await supabase
         .from('Posts')
         .update({ title: post.title, author: post.author,  description: post.description})
@@ -54,10 +61,21 @@ const EditPost = () => {
 
         window.location = "/";
     }
+    const deletePost = async (event) => {
+        event.preventDefault();
+
+        await supabase
+            .from('Posts')
+            .delete()
+            .eq('id', id);
+        
+        window.location = "/";
+
+    }
 
     return (
         <div>
-            <form>
+            <form className='challenge-form'>
                 {priorPost[0] ? (
                     <>
                         <label for="title">Title</label> <br />
@@ -73,7 +91,7 @@ const EditPost = () => {
                         </textarea>
                         <br/>
                         <input type="submit" value="Submit" onClick={updatePost}/>
-                        <button className="deleteButton">Delete</button>
+                        <button className="deleteButton" onClick={deletePost}>Delete</button>
                     </>
                     ) : null
                 }
